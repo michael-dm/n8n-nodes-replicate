@@ -8,6 +8,7 @@ import {
 	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
+	NodeApiError,
 } from 'n8n-workflow';
 
 import { ReplicateProperties } from './ReplicateGen.types';
@@ -16,7 +17,7 @@ export class ReplicateGen implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Replicate',
 		name: 'ReplicateGen',
-		icon: 'file:replicate.png',
+		icon: 'file:replicate.svg',
 		group: ['transform'],
 		version: 1,
 		description: 'Use Replicate API',
@@ -131,10 +132,11 @@ export class ReplicateGen implements INodeType {
 						displayName: 'Property',
 						values: [
 							{
-								displayName: 'Key Name',
+								displayName: 'Key Name or ID',
 								name: 'key',
 								type: 'options',
-								description: 'Choose from the list',
+								description:
+									'Choose from the list. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 								typeOptions: {
 									loadOptionsMethod: 'getModelProperties',
 									loadOptionsDependsOn: ['modelName', 'modelVersion'],
@@ -300,7 +302,11 @@ export class ReplicateGen implements INodeType {
 					});
 
 					const getUrl = res.urls?.get;
-					if (!getUrl) throw new Error('No get url found in response: ' + JSON.stringify(res));
+					if (!getUrl)
+						throw new NodeApiError(this.getNode(), {
+							message: 'No get url found in response',
+							res,
+						});
 
 					while (true) {
 						await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -315,7 +321,10 @@ export class ReplicateGen implements INodeType {
 						);
 
 						if (responseData.status === 'failed') {
-							throw new Error('Prediction failed: ' + JSON.stringify(responseData));
+							throw new NodeApiError(this.getNode(), {
+								message: 'Prediction failed',
+								res: responseData,
+							});
 						} else if (responseData.status === 'succeeded') {
 							break;
 						}
