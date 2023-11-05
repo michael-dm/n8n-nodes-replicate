@@ -28,7 +28,7 @@ export class ReplicateGen implements INodeType {
 		outputs: ['main'],
 		credentials: [
 			{
-				name: 'ReplicateApi',
+				name: 'replicateApi',
 				required: true,
 			},
 		],
@@ -202,7 +202,7 @@ export class ReplicateGen implements INodeType {
 
 				const { results } = await this.helpers.httpRequestWithAuthentication.call(
 					this,
-					'ReplicateApi',
+					'replicateApi',
 					{
 						method: 'GET',
 						url: `https://api.replicate.com/v1/models/${modelName}/versions`,
@@ -237,7 +237,7 @@ export class ReplicateGen implements INodeType {
 
 				const { openapi_schema } = await this.helpers.httpRequestWithAuthentication.call(
 					this,
-					'ReplicateApi',
+					'replicateApi',
 					{
 						method: 'GET',
 						url: `https://api.replicate.com/v1/models/${modelName}/versions/${modelVersion}`,
@@ -293,7 +293,7 @@ export class ReplicateGen implements INodeType {
 						input: mapProperties(properties),
 					};
 
-					const res = await this.helpers.httpRequestWithAuthentication.call(this, 'ReplicateApi', {
+					const res = await this.helpers.httpRequestWithAuthentication.call(this, 'replicateApi', {
 						method: 'POST',
 						url: `https://api.replicate.com/v1/predictions`,
 						encoding: 'json',
@@ -313,7 +313,7 @@ export class ReplicateGen implements INodeType {
 
 						responseData = await this.helpers.httpRequestWithAuthentication.call(
 							this,
-							'ReplicateApi',
+							'replicateApi',
 							{
 								method: 'GET',
 								url: getUrl,
