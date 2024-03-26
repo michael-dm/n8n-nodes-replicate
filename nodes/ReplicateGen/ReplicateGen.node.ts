@@ -308,17 +308,30 @@ export class ReplicateGen implements INodeType {
 							res,
 						});
 
+					let numErrors = 0;
+
 					while (true) {
 						await new Promise((resolve) => setTimeout(resolve, 5000));
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'replicateApi',
-							{
-								method: 'GET',
-								url: getUrl,
-							},
-						);
+						try {
+							responseData = await this.helpers.httpRequestWithAuthentication.call(
+								this,
+								'replicateApi',
+								{
+									method: 'GET',
+									url: getUrl,
+								},
+							);
+						} catch (e) {
+							numErrors++;
+							if (numErrors > 2) {
+								throw new NodeApiError(this.getNode(), {
+									message: 'Error getting data from replicate',
+									res: e
+								});
+							}
+							await new Promise((resolve) => setTimeout(resolve, 10000));
+						}
 
 						if (responseData.status === 'failed') {
 							throw new NodeApiError(this.getNode(), {
